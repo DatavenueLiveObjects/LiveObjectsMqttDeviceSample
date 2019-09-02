@@ -5,6 +5,7 @@ Sample application for Orange Datavenue Live Objects <a>https://liveobjects.oran
 
 It is a simple sample that exchange MQTT payloads with Live Objects as an MQTT device ('json+device' user name).
 It generates standard Live Objects messages as follows :<br>
+```
 	{
 		"streamId":"device1stream",
 		"timestamp":"2019-09-01T15:52:31.150Z",
@@ -19,6 +20,7 @@ It generates standard Live Objects messages as follows :<br>
 		"tags":["SampleTag"],
 		"metadata":{"source":"urn:lo:nsid:samples:device1","connector":"mqtt"}
 	}
+```
 
 This sample generates the same kind of payload as the Android app available at : 
 <a>https://play.google.com/store/apps/details?id=com.orange.lo.assetdemo</a>
