@@ -26,6 +26,7 @@ public class DataPublisher {
 	private static final boolean SECURED              = true;                               // TLS-secured connection ?
 	private static final boolean HANDLE_CONFIGURATION = true;                               // publish configuration and subscribe to updates ?
 	private static final boolean HANDLE_COMMANDS      = true;                               // subscribe to commands ?
+	private static final boolean HANDLE_FIRMWARE      = true;                               // publish firmware version and subscribe to updates ?
 	/*
 	 * MSG_SRC=1: simple message built with objects
      * MSG_SRC=2: simple message built with hash map
@@ -55,7 +56,7 @@ public class DataPublisher {
 			}
 
 			// now connect to LO
-			MqttClient mqttClient = new MqttClient(server, CLIENT_ID, new MemoryPersistence());
+			MqttClient mqttClient = new RegulatedMqttClient(server, CLIENT_ID, new MemoryPersistence(), 500);
 			mqttClient.connect(connOpts);
 			System.out.println("Connected to Live Objects in Device Mode" + (SECURED ? " with TLS" : ""));
 
@@ -67,6 +68,11 @@ public class DataPublisher {
 			if (HANDLE_COMMANDS) {
 				DeviceCommands commandsHandler = new DeviceCommands(mqttClient);
 				commandsHandler.subscribeToCommands();
+			}
+			if (HANDLE_FIRMWARE) {
+				DeviceFirmware firmwareHandler = new DeviceFirmware(mqttClient);
+				firmwareHandler.publish();
+				firmwareHandler.subscribeToResources();
 			}
 
 			do {
