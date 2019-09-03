@@ -2,7 +2,6 @@ package com.orange.mqttDeviceModePublishData.messages;
 
 import com.google.gson.Gson;
 import com.orange.mqttDeviceModePublishData.json.devData.LoData;
-import com.orange.mqttDeviceModePublishData.json.devData.SampleData;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.text.DateFormat;
@@ -49,7 +48,13 @@ public class SimpleMessage {
         return mqttMessage;
     }
 
-    static String toISO8601UTC(Date date) {
+    public static class SampleData {
+        public String log;
+        public int temperature;
+        public int hygrometry;
+    }
+
+    public static String toISO8601UTC(Date date) {
         TimeZone tz = TimeZone.getTimeZone("UTC");
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         df.setTimeZone(tz);

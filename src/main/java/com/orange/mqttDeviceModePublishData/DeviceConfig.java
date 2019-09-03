@@ -54,29 +54,29 @@ public class DeviceConfig implements MqttCallback {
 
     @Override
     public void messageArrived(String s, MqttMessage mqttMessage) {
-       // parse message as command
-       LoConfig config = new Gson().fromJson(new String(mqttMessage.getPayload()), LoConfig.class);
-       System.out.println("Device configuration received: " + new Gson().toJson(config));
+        // parse message as configuration changes
+        LoConfig config = new Gson().fromJson(new String(mqttMessage.getPayload()), LoConfig.class);
+        System.out.println("Device configuration received: " + new Gson().toJson(config));
 
-       if (config.cfg.containsKey("logLevel"))
-           logLevel = LoConfig.toString(config.cfg.get("logLevel").v);
-       if (config.cfg.containsKey("trigger"))
-           trigger = LoConfig.toDouble(config.cfg.get("trigger").v);
-       if (config.cfg.containsKey("connDelaySec"))
-           connDelaySec = LoConfig.toInt(config.cfg.get("connDelaySec").v);
+        if (config.cfg.containsKey("logLevel"))
+            logLevel = LoConfig.toString(config.cfg.get("logLevel").v);
+        if (config.cfg.containsKey("trigger"))
+            trigger = LoConfig.toDouble(config.cfg.get("trigger").v);
+        if (config.cfg.containsKey("connDelaySec"))
+            connDelaySec = LoConfig.toInt(config.cfg.get("connDelaySec").v);
 
-       new Thread(() -> {
-           try {
-               publish(config.cid);
-           } catch (MqttException me) {
-               System.out.println("reason " + me.getReasonCode());
-               System.out.println("msg " + me.getMessage());
-               System.out.println("loc " + me.getLocalizedMessage());
-               System.out.println("cause " + me.getCause());
-               System.out.println("excep " + me);
-               me.printStackTrace();
+        new Thread(() -> {
+            try {
+                publish(config.cid);
+            } catch (MqttException me) {
+                System.out.println("reason " + me.getReasonCode());
+                System.out.println("msg " + me.getMessage());
+                System.out.println("loc " + me.getLocalizedMessage());
+                System.out.println("cause " + me.getCause());
+                System.out.println("excep " + me);
+                me.printStackTrace();
            }
-       }).start();
+        }).start();
     }
 
     @Override
