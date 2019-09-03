@@ -31,7 +31,7 @@ public class SimpleMessage {
         loData.t      = Arrays.asList("MQTTdata", "SampleTag");
 
         String msg = new Gson().toJson(loData);
-        System.out.println(msg);
+        System.out.println("Publishing message: " + msg);
         return msg.getBytes();
     }
 

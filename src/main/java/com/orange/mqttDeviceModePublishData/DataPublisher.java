@@ -10,27 +10,29 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
+import static com.orange.mqttDeviceModePublishData.MqttTopics.MQTT_TOPIC_PUBLISH_DATA;
+import static com.orange.mqttDeviceModePublishData.MqttTopics.MQTT_TOPIC_PUBLISH_DATA_RAW_PREFIX;
+
 /**
  * This sample will publish data for a device : device1
  * At this end you can take a look in the data zone of live objects to see the data sent.
  **/
 public class DataPublisher {
 	// Connection parameters
-	private static final String  API_KEY   = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";           // <-- REPLACE by YOUR API_KEY!
-	private static final String  CLIENT_ID = "urn:lo:nsid:samples:device1";                // in device mode : should be the syntax urn:lo:nsid:{namespace}:{id}
-	private static final String  STREAM    = "device1stream";                              // timeseries this message belongs to
-	private static final String  MODEL     = "devtype1";                                   // data indexing model
-	private static final boolean SECURED   = true;                                         // TLS-secured connection ?
-
+	private static final String  API_KEY              = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"; // <-- REPLACE by YOUR API_KEY!
+	private static final String  CLIENT_ID            = "urn:lo:nsid:samples:device1";      // in device mode : should be the syntax urn:lo:nsid:{namespace}:{id}
+	private static final String  STREAM               = "device1stream";                    // timeseries this message belongs to
+	private static final String  MODEL                = "devtype1";                         // data indexing model
+	private static final boolean SECURED              = true;                               // TLS-secured connection ?
+	private static final boolean HANDLE_CONFIGURATION = true;                               // publish configuration and subscribe to updates ?
 	/*
 	 * MSG_SRC=1: simple message built with objects
      * MSG_SRC=2: simple message built with hash map
      * MSG_SRC=3: raw message to be decoded by Live Objects as a float number
      * MSG_SRC=4: raw message (image) NOT to be decoded by Live Objects
 	 */
-    private static final int     MSG_SRC   = 4;
-
-	private static       boolean LOOP      = false;                                         // Run in a loop, or just send 1 message ?
+    private static final int     MSG_SRC              = 1;
+    private static       boolean LOOP                 = true;                              // Run in a loop, or just send 1 message ?
 
 	@SuppressWarnings("ConstantConditions")
     public static void main(String[] args) {
@@ -40,6 +42,7 @@ public class DataPublisher {
 			connOpts.setCleanSession(true);
 			connOpts.setPassword(API_KEY.toCharArray());
 			connOpts.setUserName("json+device");             // needed to publish as a device
+			connOpts.setKeepAliveInterval(30);               // 30 seconds, to keep the connection with Live Objects
 
 			String server;
 			if (SECURED) {
@@ -51,9 +54,15 @@ public class DataPublisher {
 			}
 
 			// now connect to LO
-			MqttClient sampleClient = new MqttClient(server, CLIENT_ID, new MemoryPersistence());
-			sampleClient.connect(connOpts);
+			MqttClient mqttClient = new MqttClient(server, CLIENT_ID, new MemoryPersistence());
+			mqttClient.connect(connOpts);
 			System.out.println("Connected to Live Objects in Device Mode" + (SECURED ? " with TLS" : ""));
+
+			if (HANDLE_CONFIGURATION) {
+				DeviceConfig configHandler = new DeviceConfig(mqttClient);
+				configHandler.publish();
+				configHandler.subscribeToConfigChanges();
+			}
 
 			do {
 				MqttMessage message;
@@ -62,24 +71,24 @@ public class DataPublisher {
 					default:
                     case 1:
 						message = new SimpleMessage().getMessage(STREAM, MODEL);
-						topic = "dev/data";
+						topic = MQTT_TOPIC_PUBLISH_DATA;
 						break;
 					case 2:
 						message = new HashMapMessage().getMessage(STREAM, MODEL);
-						topic = "dev/data";
+						topic = MQTT_TOPIC_PUBLISH_DATA;
 						break;
 					case 3:
 						message = new BinaryEncodedMessage().getMessage();
-						topic = "dev/data/raw/test";
+						topic = MQTT_TOPIC_PUBLISH_DATA_RAW_PREFIX + "test";
 						break;
 					case 4:
 						message = new BinaryMessage().getMessage();
-						topic = "dev/data/raw/none";
+						topic = MQTT_TOPIC_PUBLISH_DATA_RAW_PREFIX + "none";
 						break;
 				}
 
 				// send your message
-				sampleClient.publish(topic, message);
+				mqttClient.publish(topic, message);
 				System.out.println("Message published");
 				if (LOOP) {
 					try {
@@ -91,7 +100,7 @@ public class DataPublisher {
 			} while (LOOP);
 
 			// disconnect
-			sampleClient.disconnect();
+			mqttClient.disconnect();
 			System.out.println("Disconnected from Live Objects");
 
 		} catch (MqttException me) {
