@@ -25,6 +25,7 @@ public class DataPublisher {
 	private static final String  MODEL                = "devtype1";                         // data indexing model
 	private static final boolean SECURED              = true;                               // TLS-secured connection ?
 	private static final boolean HANDLE_CONFIGURATION = true;                               // publish configuration and subscribe to updates ?
+	private static final boolean HANDLE_COMMANDS      = true;                               // subscribe to commands ?
 	/*
 	 * MSG_SRC=1: simple message built with objects
      * MSG_SRC=2: simple message built with hash map
@@ -62,6 +63,10 @@ public class DataPublisher {
 				DeviceConfig configHandler = new DeviceConfig(mqttClient);
 				configHandler.publish();
 				configHandler.subscribeToConfigChanges();
+			}
+			if (HANDLE_COMMANDS) {
+				DeviceCommands commandsHandler = new DeviceCommands(mqttClient);
+				commandsHandler.subscribeToCommands();
 			}
 
 			do {
