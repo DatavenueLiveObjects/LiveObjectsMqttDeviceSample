@@ -1,5 +1,7 @@
 package com.orange.mqttDeviceModePublishData;
 
+import com.orange.mqttDeviceModePublishData.messages.BinaryEncodedMessage;
+import com.orange.mqttDeviceModePublishData.messages.BinaryMessage;
 import com.orange.mqttDeviceModePublishData.messages.HashMapMessage;
 import com.orange.mqttDeviceModePublishData.messages.SimpleMessage;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -21,14 +23,14 @@ public class DataPublisher {
 	private static final boolean SECURED   = true;                                         // TLS-secured connection ?
 
 	/*
-	 * Run in a loop, or just send 1 message ?
-	 */
-    private static       boolean LOOP      = true;
-	/*
 	 * MSG_SRC=1: simple message built with objects
      * MSG_SRC=2: simple message built with hash map
+     * MSG_SRC=3: raw message to be decoded by Live Objects as a float number
+     * MSG_SRC=4: raw message (image) NOT to be decoded by Live Objects
 	 */
-    private static final int     MSG_SRC   = 1;
+    private static final int     MSG_SRC   = 4;
+
+	private static       boolean LOOP      = false;                                         // Run in a loop, or just send 1 message ?
 
 	@SuppressWarnings("ConstantConditions")
     public static void main(String[] args) {
@@ -54,20 +56,27 @@ public class DataPublisher {
 			System.out.println("Connected to Live Objects in Device Mode" + (SECURED ? " with TLS" : ""));
 
 			do {
-				SimpleMessage source;
+				MqttMessage message;
 				String topic;
                 switch (MSG_SRC) {
 					default:
                     case 1:
-						source = new SimpleMessage();
+						message = new SimpleMessage().getMessage(STREAM, MODEL);
 						topic = "dev/data";
 						break;
 					case 2:
-						source = new HashMapMessage();
+						message = new HashMapMessage().getMessage(STREAM, MODEL);
 						topic = "dev/data";
 						break;
+					case 3:
+						message = new BinaryEncodedMessage().getMessage();
+						topic = "dev/data/raw/test";
+						break;
+					case 4:
+						message = new BinaryMessage().getMessage();
+						topic = "dev/data/raw/none";
+						break;
 				}
-				MqttMessage message = source.getMessage(STREAM, MODEL);
 
 				// send your message
 				sampleClient.publish(topic, message);

@@ -13,7 +13,7 @@ import java.util.TimeZone;
 
 @SuppressWarnings("WeakerAccess")
 public class SimpleMessage {
-    private static final int QOS = 1;
+    public static final int QOS = 1;
 
     byte[] prepareMessage(String stream, String model) {
         // create message
