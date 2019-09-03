@@ -14,12 +14,11 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
  **/
 public class DataPublisher {
 	// Connection parameters
-	public static final String SERVER    = "tcp://liveobjects.orange-business.com:1883"; // declare Live Objects end point
-	public static final String API_KEY   = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";           // <-- REPLACE by YOUR API_KEY!
-	public static final String USERNAME  = "json+device";                                // The option to publish in device mode
-	public static final String CLIENT_ID = "urn:lo:nsid:samples:device1";                // in device mode : should be the syntax urn:lo:nsid:{namespace}:{id}
-	public static final String STREAM    = "device1stream";                              // timeseries this message belongs to
-	public static final String MODEL     = "devtype1";                                   // data indexing model
+	public static final String  API_KEY   = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";           // <-- REPLACE by YOUR API_KEY!
+	public static final String  CLIENT_ID = "urn:lo:nsid:samples:device1";                // in device mode : should be the syntax urn:lo:nsid:{namespace}:{id}
+	public static final String  STREAM    = "device1stream";                              // timeseries this message belongs to
+	public static final String  MODEL     = "devtype1";                                   // data indexing model
+	public static final boolean SECURED   = true;                                         // TLS-secured connection ?
 
 	/*
 	 * Run in a loop, or just send 1 message ?
@@ -33,17 +32,25 @@ public class DataPublisher {
 
 	public static void main(String[] args) {
 		try {
-			MqttClient sampleClient = new MqttClient(SERVER, CLIENT_ID, new MemoryPersistence());
-			
-			// create and fill you connections options
+			// create and fill the connection options
 			MqttConnectOptions connOpts = new MqttConnectOptions();
 			connOpts.setCleanSession(true);
 			connOpts.setPassword(API_KEY.toCharArray());
-			connOpts.setUserName(USERNAME);
-			
+			connOpts.setUserName("json+device");             // needed to publish as a device
+
+			String server;
+			if (SECURED) {
+				server = "ssl://liveobjects.orange-business.com:8883";
+				connOpts.setSocketFactory(SSLUtils.getLiveObjectsSocketFactory());
+            }
+			else {
+				server = "tcp://liveobjects.orange-business.com:1883";
+			}
+
 			// now connect to LO
+			MqttClient sampleClient = new MqttClient(server, CLIENT_ID, new MemoryPersistence());
 			sampleClient.connect(connOpts);
-			System.out.println("Connected to Live Objects in Device Mode");
+			System.out.println("Connected to Live Objects in Device Mode" + (SECURED ? " with TLS" : ""));
 
 			do {
 				SimpleMessage source;
