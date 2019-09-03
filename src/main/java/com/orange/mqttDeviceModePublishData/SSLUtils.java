@@ -18,6 +18,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 
+@SuppressWarnings("WeakerAccess")
 public class SSLUtils {
     private static TrustManager[] getTrustManagers(InputStream caCertStream) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
         CertificateFactory cf = CertificateFactory.getInstance("X.509");

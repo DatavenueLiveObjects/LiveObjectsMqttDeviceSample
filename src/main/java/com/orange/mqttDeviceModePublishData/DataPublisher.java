@@ -14,23 +14,24 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
  **/
 public class DataPublisher {
 	// Connection parameters
-	public static final String  API_KEY   = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";           // <-- REPLACE by YOUR API_KEY!
-	public static final String  CLIENT_ID = "urn:lo:nsid:samples:device1";                // in device mode : should be the syntax urn:lo:nsid:{namespace}:{id}
-	public static final String  STREAM    = "device1stream";                              // timeseries this message belongs to
-	public static final String  MODEL     = "devtype1";                                   // data indexing model
-	public static final boolean SECURED   = true;                                         // TLS-secured connection ?
+	private static final String  API_KEY   = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";           // <-- REPLACE by YOUR API_KEY!
+	private static final String  CLIENT_ID = "urn:lo:nsid:samples:device1";                // in device mode : should be the syntax urn:lo:nsid:{namespace}:{id}
+	private static final String  STREAM    = "device1stream";                              // timeseries this message belongs to
+	private static final String  MODEL     = "devtype1";                                   // data indexing model
+	private static final boolean SECURED   = true;                                         // TLS-secured connection ?
 
 	/*
 	 * Run in a loop, or just send 1 message ?
 	 */
-	public static final boolean LOOP     = true;
+    private static       boolean LOOP      = true;
 	/*
 	 * MSG_SRC=1: simple message built with objects
      * MSG_SRC=2: simple message built with hash map
 	 */
-	public static final int     MSG_SRC  = 2;
+    private static final int     MSG_SRC   = 1;
 
-	public static void main(String[] args) {
+	@SuppressWarnings("ConstantConditions")
+    public static void main(String[] args) {
 		try {
 			// create and fill the connection options
 			MqttConnectOptions connOpts = new MqttConnectOptions();
@@ -55,9 +56,9 @@ public class DataPublisher {
 			do {
 				SimpleMessage source;
 				String topic;
-				switch (MSG_SRC) {
+                switch (MSG_SRC) {
 					default:
-					case 1:
+                    case 1:
 						source = new SimpleMessage();
 						topic = "dev/data";
 						break;
@@ -75,7 +76,7 @@ public class DataPublisher {
 					try {
 						Thread.sleep(10000);
 					} catch (InterruptedException e) {
-						break;
+						LOOP = false;
 					}
 				}
 			} while (LOOP);

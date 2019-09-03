@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.TimeZone;
 
+@SuppressWarnings("WeakerAccess")
 public class SimpleMessage {
     private static final int QOS = 1;
 
@@ -27,7 +28,7 @@ public class SimpleMessage {
             2.185 + (((double) (msgDt.getTime() % 1000)) / 1000)
         };
         loData.v      = preparePayload(msgDt);
-        loData.t      = Arrays.asList("SampleTag");
+        loData.t      = Arrays.asList("MQTTdata", "SampleTag");
 
         String msg = new Gson().toJson(loData);
         System.out.println(msg);
