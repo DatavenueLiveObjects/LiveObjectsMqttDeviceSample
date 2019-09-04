@@ -3,8 +3,8 @@ Live Objects Mqtt Device Sample
 
 Sample application for Orange Datavenue Live Objects <a>https://liveobjects.orange-business.com</a>
 
-It is a simple sample that exchange MQTT payloads with Live Objects as an MQTT device ('json+device' user name).
-It generates standard Live Objects messages as follows :<br>
+It is a device sample: it exchanges MQTT payloads with Live Objects as an MQTT device ('json+device' user name).
+It can generate standard Live Objects messages as follows :<br>
 ```
 	{
 		"streamId":"device1stream",
@@ -22,6 +22,8 @@ It generates standard Live Objects messages as follows :<br>
 	}
 ```
 
+It also handles Live-Objects-managed parameters, remote commands, and firmware updates.
+
 This sample generates the same kind of payload as the Android app available at : 
 <a>https://play.google.com/store/apps/details?id=com.orange.lo.assetdemo</a>
 <br>
@@ -34,7 +36,7 @@ Don't check "Lora".
 
 2) Generate your Device API key : menu Configuration/API Keys (<a>https://liveobjects.orange-business.com/#/config/apikeys</a>) click on "Add", select 'MQTT device' profile rights.
 
-3) Paste the key in DataPublisher, API_KEY variable.
+3) Paste the key in MyDevice.java, API_KEY variable. Adapt other neighbour constants to your needs.
 
 4) Build as a standard Maven project into you IDE (eg Idea, Eclipse, ...).
 

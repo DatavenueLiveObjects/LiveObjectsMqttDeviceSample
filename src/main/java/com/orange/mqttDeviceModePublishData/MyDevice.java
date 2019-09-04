@@ -1,5 +1,14 @@
 package com.orange.mqttDeviceModePublishData;
 
+/*
+ * Copyright (C) 2019 Orange Business Services
+ *
+ * This software is distributed under the terms and conditions of the '3-Clause BSD'
+ * license which can be found in the file 'LICENSE' in this package distribution
+ * or at 'https://opensource.org/licenses/BSD-3-Clause'.
+ */
+
+import com.orange.mqttDeviceModePublishData.features.*;
 import com.orange.mqttDeviceModePublishData.messages.BinaryEncodedMessage;
 import com.orange.mqttDeviceModePublishData.messages.BinaryMessage;
 import com.orange.mqttDeviceModePublishData.messages.HashMapMessage;
@@ -10,14 +19,17 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
-import static com.orange.mqttDeviceModePublishData.MqttTopics.MQTT_TOPIC_PUBLISH_DATA;
-import static com.orange.mqttDeviceModePublishData.MqttTopics.MQTT_TOPIC_PUBLISH_DATA_RAW_PREFIX;
+import static com.orange.mqttDeviceModePublishData.features.MqttTopics.MQTT_TOPIC_PUBLISH_DATA;
+import static com.orange.mqttDeviceModePublishData.features.MqttTopics.MQTT_TOPIC_PUBLISH_DATA_RAW_PREFIX;
 
 /**
- * This sample will publish data for a device : device1
- * At this end you can take a look in the data zone of live objects to see the data sent.
+ * This sample will publish data for a device "device1", with several payloads,
+ * manage incoming commands and parameters, and allow firmware updates.
+ * At this end you can take a look in the data zone of live objects to see the data sent,
+ * to send remote commands and parameters, or change the firmware.
+ * First, change the constants belows, then run Main function.
  **/
-public class DataPublisher {
+public class MyDevice {
 	// Connection parameters
 	private static final String  API_KEY              = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"; // <-- REPLACE by YOUR API_KEY!
 	private static final String  CLIENT_ID            = "urn:lo:nsid:samples:device1";      // in device mode : should be the syntax urn:lo:nsid:{namespace}:{id}

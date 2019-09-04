@@ -1,5 +1,14 @@
-package com.orange.mqttDeviceModePublishData;
+package com.orange.mqttDeviceModePublishData.features;
 
+/*
+ * Copyright (C) 2019 Orange Business Services
+ *
+ * This software is distributed under the terms and conditions of the '3-Clause BSD'
+ * license which can be found in the file 'LICENSE' in this package distribution
+ * or at 'https://opensource.org/licenses/BSD-3-Clause'.
+ */
+
+import com.orange.mqttDeviceModePublishData.MyDevice;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 
@@ -18,7 +27,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 
-@SuppressWarnings("WeakerAccess")
 public class SSLUtils {
     private static TrustManager[] getTrustManagers(InputStream caCertStream) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
@@ -50,7 +58,7 @@ public class SSLUtils {
     public static SocketFactory getLiveObjectsSocketFactory() throws MqttSecurityException {
         // Get the certificate from the program resource and build a SSLSocketFactory
         try {
-            try (InputStream is = DataPublisher.class.getResourceAsStream("/DigiCertSHA2SecureServerCA.crt")) {
+            try (InputStream is = MyDevice.class.getResourceAsStream("/DigiCertSHA2SecureServerCA.crt")) {
                 return getSSLSocketFactory(is);
             }
         } catch (IOException e) {

@@ -1,12 +1,20 @@
-package com.orange.mqttDeviceModePublishData;
+package com.orange.mqttDeviceModePublishData.features;
+
+/*
+ * Copyright (C) 2019 Orange Business Services
+ *
+ * This software is distributed under the terms and conditions of the '3-Clause BSD'
+ * license which can be found in the file 'LICENSE' in this package distribution
+ * or at 'https://opensource.org/licenses/BSD-3-Clause'.
+ */
 
 import com.google.gson.Gson;
-import com.orange.mqttDeviceModePublishData.json.devData.LoCommand;
+import com.orange.mqttDeviceModePublishData.jsonpatterns.LoCommand;
 import org.eclipse.paho.client.mqttv3.*;
 
 import java.util.HashMap;
 
-import static com.orange.mqttDeviceModePublishData.MqttTopics.MQTT_TOPIC_SUBSCRIBE_COMMAND;
+import static com.orange.mqttDeviceModePublishData.features.MqttTopics.MQTT_TOPIC_SUBSCRIBE_COMMAND;
 
 @SuppressWarnings("WeakerAccess")
 public class DeviceCommands implements MqttCallback {

@@ -1,14 +1,22 @@
-package com.orange.mqttDeviceModePublishData;
+package com.orange.mqttDeviceModePublishData.features;
 
-import static com.orange.mqttDeviceModePublishData.MqttTopics.MQTT_TOPIC_SUBSCRIBE_RESOURCE;
-import static com.orange.mqttDeviceModePublishData.json.devData.LoResource.Resource;
-import static com.orange.mqttDeviceModePublishData.json.devData.LoResource.LoResourceUpdate;
-import static com.orange.mqttDeviceModePublishData.json.devData.LoResource.LoResourceResponse;
-import static com.orange.mqttDeviceModePublishData.json.devData.LoResource.LoResourceResponseError;
-import static com.orange.mqttDeviceModePublishData.json.devData.LoResource.RESPONSE_CODE;
+/*
+ * Copyright (C) 2019 Orange Business Services
+ *
+ * This software is distributed under the terms and conditions of the '3-Clause BSD'
+ * license which can be found in the file 'LICENSE' in this package distribution
+ * or at 'https://opensource.org/licenses/BSD-3-Clause'.
+ */
+
+import static com.orange.mqttDeviceModePublishData.features.MqttTopics.MQTT_TOPIC_SUBSCRIBE_RESOURCE;
+import static com.orange.mqttDeviceModePublishData.jsonpatterns.LoResource.Resource;
+import static com.orange.mqttDeviceModePublishData.jsonpatterns.LoResource.LoResourceUpdate;
+import static com.orange.mqttDeviceModePublishData.jsonpatterns.LoResource.LoResourceResponse;
+import static com.orange.mqttDeviceModePublishData.jsonpatterns.LoResource.LoResourceResponseError;
+import static com.orange.mqttDeviceModePublishData.jsonpatterns.LoResource.RESPONSE_CODE;
 
 import com.google.gson.Gson;
-import com.orange.mqttDeviceModePublishData.json.devData.LoResource;
+import com.orange.mqttDeviceModePublishData.jsonpatterns.LoResource;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.paho.client.mqttv3.*;

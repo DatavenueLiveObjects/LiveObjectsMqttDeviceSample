@@ -1,4 +1,12 @@
-package com.orange.mqttDeviceModePublishData.json.devData;
+package com.orange.mqttDeviceModePublishData.jsonpatterns;
+
+/*
+ * Copyright (C) 2019 Orange Business Services
+ *
+ * This software is distributed under the terms and conditions of the '3-Clause BSD'
+ * license which can be found in the file 'LICENSE' in this package distribution
+ * or at 'https://opensource.org/licenses/BSD-3-Clause'.
+ */
 
 import com.google.gson.annotations.SerializedName;
 
