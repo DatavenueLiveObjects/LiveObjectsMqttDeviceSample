@@ -13,11 +13,10 @@ import com.orange.mqttDeviceModePublishData.messages.BinaryEncodedMessage;
 import com.orange.mqttDeviceModePublishData.messages.BinaryMessage;
 import com.orange.mqttDeviceModePublishData.messages.HashMapMessage;
 import com.orange.mqttDeviceModePublishData.messages.SimpleMessage;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+
+import java.util.Random;
 
 import static com.orange.mqttDeviceModePublishData.features.MqttTopics.MQTT_TOPIC_PUBLISH_DATA;
 import static com.orange.mqttDeviceModePublishData.features.MqttTopics.MQTT_TOPIC_PUBLISH_DATA_RAW_PREFIX;
@@ -31,14 +30,20 @@ import static com.orange.mqttDeviceModePublishData.features.MqttTopics.MQTT_TOPI
  **/
 public class MyDevice {
 	// Connection parameters
-	private static final String  API_KEY              = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"; // <-- REPLACE by YOUR API_KEY!
-	private static final String  CLIENT_ID            = "urn:lo:nsid:samples:device1";      // in device mode : should be the syntax urn:lo:nsid:{namespace}:{id}
+	private static final String  API_KEY              = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"; // <-- REPLACE by YOUR API_KEY with "MQTT device" rights
+	private static final String  DEVICE_URN           = "urn:lo:nsid:samples:device1";      // in device mode : should be the syntax urn:lo:nsid:{namespace}:{id}
 	private static final String  STREAM               = "device1stream";                    // timeseries this message belongs to
 	private static final String  MODEL                = "devtype1";                         // data indexing model
-	private static final boolean SECURED              = true;                               // TLS-secured connection ?
+	public  static final boolean SECURED              = true;                               // TLS-secured connection ?
 	private static final boolean HANDLE_CONFIGURATION = true;                               // publish configuration and subscribe to updates ?
 	private static final boolean HANDLE_COMMANDS      = true;                               // subscribe to commands ?
 	private static final boolean HANDLE_FIRMWARE      = true;                               // publish firmware version and subscribe to updates ?
+	/*
+	 * Application mode: the device may also open a dedicated MQTT connection to subscribe to FiFo topics, like cloud applications do.
+	 * Warning: the API-Key must have the additional BUS_R right. And therefore, SECURED must be set, or Live Objects will reject both connections.
+	 */
+	private static final boolean HANDLE_APPMODE       = true;                               // also act as an application consuming a FiFo (separate MQTT connection) ?
+	public  static final String  HANDLE_APPMODE_FIFO  = "DeviceToDevice";                   // application-mode: FiFo name to consume (must exist in Live Objects)
 	/*
 	 * MSG_SRC=1: simple message built with objects
      * MSG_SRC=2: simple message built with hash map
@@ -51,25 +56,7 @@ public class MyDevice {
 	@SuppressWarnings("ConstantConditions")
     public static void main(String[] args) {
 		try {
-			// create and fill the connection options
-			MqttConnectOptions connOpts = new MqttConnectOptions();
-			connOpts.setCleanSession(true);
-			connOpts.setPassword(API_KEY.toCharArray());
-			connOpts.setUserName("json+device");             // needed to publish as a device
-			connOpts.setKeepAliveInterval(30);               // 30 seconds, to keep the connection with Live Objects
-
-			String server;
-			if (SECURED) {
-				server = "ssl://liveobjects.orange-business.com:8883";
-				connOpts.setSocketFactory(SSLUtils.getLiveObjectsSocketFactory());
-            }
-			else {
-				server = "tcp://liveobjects.orange-business.com:1883";
-			}
-
-			// now connect to LO
-			MqttClient mqttClient = new RegulatedMqttClient(server, CLIENT_ID, new MemoryPersistence(), 500);
-			mqttClient.connect(connOpts);
+			MqttClient mqttClient = createAndConnectMqttClient(ConnectionMode.DEVICE);
 			System.out.println("Connected to Live Objects in Device Mode" + (SECURED ? " with TLS" : ""));
 
 			if (HANDLE_CONFIGURATION) {
@@ -85,6 +72,10 @@ public class MyDevice {
 				DeviceFirmware firmwareHandler = new DeviceFirmware(mqttClient);
 				firmwareHandler.publish();
 				firmwareHandler.subscribeToResources();
+			}
+			if (HANDLE_APPMODE) {
+				AppModeHandler appModeHandler = new AppModeHandler();
+				appModeHandler.subscribeToFifo();
 			}
 
 			do {
@@ -134,5 +125,42 @@ public class MyDevice {
 			System.out.println("excep " + me);
 			me.printStackTrace();
 		}
+	}
+
+	public static MqttClient createAndConnectMqttClient(ConnectionMode mode) throws MqttException {
+		// create and fill the connection options
+		MqttConnectOptions connOpts = new MqttConnectOptions();
+		connOpts.setCleanSession(true);
+		connOpts.setPassword(API_KEY.toCharArray());
+		String clientId;
+		if (mode == ConnectionMode.DEVICE) {
+			connOpts.setUserName("json+device");             // needed to publish as a device
+			clientId = DEVICE_URN;
+		} else {
+			connOpts.setUserName("application");             // needed to subscribe as an application
+			clientId = "RandomClientId" + new Random().nextInt();
+		}
+		connOpts.setKeepAliveInterval(30);               // 30 seconds, to keep the connection with Live Objects
+
+		String server;
+		if (SECURED) {
+			server = "ssl://liveobjects.orange-business.com:8883";
+			connOpts.setSocketFactory(SSLUtils.getLiveObjectsSocketFactory());
+		}
+		else {
+			if (HANDLE_APPMODE) {
+				System.err.println("Secure mode must be defined when an API-Key has more than \"device\" rights");
+				System.exit(1);
+			}
+			server = "tcp://liveobjects.orange-business.com:1883";
+		}
+
+		MqttClient mqttClient = new RegulatedMqttClient(server, clientId, new MemoryPersistence(), 500);
+		// now connect to LO
+		mqttClient.connect(connOpts);
+		return mqttClient;
+	}
+	public enum ConnectionMode {
+		DEVICE, APPLICATION
 	}
 }

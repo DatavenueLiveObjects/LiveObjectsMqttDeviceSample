@@ -52,7 +52,7 @@ public class DeviceConfig implements MqttCallback {
     }
 
     public void subscribeToConfigChanges() throws MqttException {
-        // register callback (to handle received commands)
+        // register callback (to handle received updates)
         mqttClient.setCallback(this);
 
         // Subscribe to data
