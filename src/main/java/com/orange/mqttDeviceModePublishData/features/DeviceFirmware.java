@@ -28,7 +28,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 
 @SuppressWarnings({"WeakerAccess", "FieldCanBeLocal"})
-public class DeviceFirmware implements MqttCallback {
+public class DeviceFirmware {
     public static final int QOS = 1;
     private final MqttClient mqttClient;
 
@@ -59,15 +59,10 @@ public class DeviceFirmware implements MqttCallback {
     }
 
     public void subscribeToResources() throws MqttException {
-        // register callback (to handle received commands)
-        mqttClient.setCallback(this);
-
-        // Subscribe to data
-        mqttClient.subscribe(MQTT_TOPIC_SUBSCRIBE_RESOURCE);
+        mqttClient.subscribe(MQTT_TOPIC_SUBSCRIBE_RESOURCE, this::messageArrived);
         System.out.println("Device resource updates subscribed.");
     }
 
-    @Override
     public void messageArrived(String s, MqttMessage mqttMessage) {
         // parse message as resource update
         LoResourceUpdate update = new Gson().fromJson(new String(mqttMessage.getPayload()), LoResourceUpdate.class);
@@ -167,15 +162,5 @@ public class DeviceFirmware implements MqttCallback {
                 me.printStackTrace();
             }
         }).start();
-    }
-
-    @Override
-    public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
-    }
-
-    @Override
-    public void connectionLost(Throwable throwable) {
-        System.out.println("Device update requests: Connection lost");
-        mqttClient.notifyAll();
     }
 }

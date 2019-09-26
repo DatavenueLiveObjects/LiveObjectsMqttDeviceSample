@@ -16,7 +16,7 @@ import org.eclipse.paho.client.mqttv3.*;
 import static com.orange.mqttDeviceModePublishData.features.MqttTopics.MQTT_TOPIC_SUBSCRIBE_CONFIG;
 
 @SuppressWarnings("WeakerAccess")
-public class DeviceConfig implements MqttCallback {
+public class DeviceConfig {
     public static final int QOS = 1;
     private final MqttClient mqttClient;
 
@@ -52,15 +52,10 @@ public class DeviceConfig implements MqttCallback {
     }
 
     public void subscribeToConfigChanges() throws MqttException {
-        // register callback (to handle received updates)
-        mqttClient.setCallback(this);
-
-        // Subscribe to data
-        mqttClient.subscribe(MQTT_TOPIC_SUBSCRIBE_CONFIG);
+        mqttClient.subscribe(MQTT_TOPIC_SUBSCRIBE_CONFIG, this::messageArrived);
         System.out.println("Device configuration changes subscribed.");
     }
 
-    @Override
     public void messageArrived(String s, MqttMessage mqttMessage) {
         // parse message as configuration changes
         LoConfig config = new Gson().fromJson(new String(mqttMessage.getPayload()), LoConfig.class);
@@ -85,15 +80,5 @@ public class DeviceConfig implements MqttCallback {
                 me.printStackTrace();
            }
         }).start();
-    }
-
-    @Override
-    public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
-    }
-
-    @Override
-    public void connectionLost(Throwable throwable) {
-        System.out.println("Device configuration changes: Connection lost");
-        mqttClient.notifyAll();
     }
 }

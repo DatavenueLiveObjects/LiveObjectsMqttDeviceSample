@@ -17,7 +17,7 @@ import java.util.HashMap;
 import static com.orange.mqttDeviceModePublishData.features.MqttTopics.MQTT_TOPIC_SUBSCRIBE_COMMAND;
 
 @SuppressWarnings("WeakerAccess")
-public class DeviceCommands implements MqttCallback {
+public class DeviceCommands {
     public static final int QOS = 1;
     private final MqttClient mqttClient;
 
@@ -26,15 +26,10 @@ public class DeviceCommands implements MqttCallback {
     }
 
     public void subscribeToCommands() throws MqttException {
-        // register callback (to handle received commands)
-        mqttClient.setCallback(this);
-
-        // Subscribe to data
-        mqttClient.subscribe(MQTT_TOPIC_SUBSCRIBE_COMMAND);
+        mqttClient.subscribe(MQTT_TOPIC_SUBSCRIBE_COMMAND, this::messageArrived);
         System.out.println("Device commands subscribed.");
     }
 
-    @Override
     public void messageArrived(String s, MqttMessage mqttMessage) {
         // parse message as command
         LoCommand command = new Gson().fromJson(new String(mqttMessage.getPayload()), LoCommand.class);
@@ -64,15 +59,5 @@ public class DeviceCommands implements MqttCallback {
                 me.printStackTrace();
            }
         }).start();
-    }
-
-    @Override
-    public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
-    }
-
-    @Override
-    public void connectionLost(Throwable throwable) {
-        System.out.println("Device commands: Connection lost");
-        mqttClient.notifyAll();
     }
 }

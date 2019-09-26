@@ -8,20 +8,19 @@ package com.orange.mqttDeviceModePublishData.features;
  * or at 'https://opensource.org/licenses/BSD-3-Clause'.
  */
 
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 /**
  * Implementation of an Mqtt Client with a basic network throughput limit by sleeping on each publish request
  */
-public class RegulatedMqttClient extends MqttClient {
+public class RegulatedMqttClient extends MqttClient implements MqttCallback {
     private final long sleepAfterPublishMillis;
 
     public RegulatedMqttClient(String server, String clientId, MemoryPersistence memoryPersistence, long sleepAfterPublishMillis) throws MqttException {
         super(server, clientId, memoryPersistence);
         this.sleepAfterPublishMillis = sleepAfterPublishMillis;
+        setCallback(this);
     }
 
     @Override
@@ -43,5 +42,20 @@ public class RegulatedMqttClient extends MqttClient {
         try {
             Thread.sleep(sleepAfterPublishMillis);
         } catch (InterruptedException ignored) {}
+    }
+
+    @Override
+    public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
+    }
+
+    @Override
+    public void connectionLost(Throwable throwable) {
+        System.out.println("MQTT: Connection lost");
+        notifyAll();
+    }
+
+    @Override
+    public void messageArrived(String s, MqttMessage mqttMessage) {
+        System.out.println("MQTT: message ignored on topic " + s);
     }
 }
