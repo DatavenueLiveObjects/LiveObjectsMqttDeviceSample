@@ -10,7 +10,6 @@ package com.orange.mqttDeviceModePublishData.features;
 
 import com.google.gson.Gson;
 import com.orange.mqttDeviceModePublishData.jsonpatterns.LoConfig;
-import com.sun.istack.internal.Nullable;
 import org.eclipse.paho.client.mqttv3.*;
 
 import static com.orange.mqttDeviceModePublishData.features.MqttTopics.MQTT_TOPIC_SUBSCRIBE_CONFIG;
@@ -32,7 +31,7 @@ public class DeviceConfig {
         publish(null);
     }
 
-    private void publish(@Nullable  Long cid) throws MqttException {
+    private void publish(Long cid) throws MqttException {
         LoConfig config = new LoConfig();
 
         config.cfg.put("logLevel",     new LoConfig.CfgParameter("str", logLevel));

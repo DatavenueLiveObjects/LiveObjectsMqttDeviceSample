@@ -34,15 +34,15 @@ public class MyDevice {
 	private static final String  DEVICE_URN           = "urn:lo:nsid:samples:device1";      // in device mode : should be the syntax urn:lo:nsid:{namespace}:{id}
 	private static final String  STREAM               = "device1stream";                    // timeseries this message belongs to
 	private static final String  MODEL                = "devtype1";                         // data indexing model
-	public  static final boolean SECURED              = true;                               // TLS-secured connection ?
-	private static final boolean HANDLE_CONFIGURATION = true;                               // publish configuration and subscribe to updates ?
-	private static final boolean HANDLE_COMMANDS      = true;                               // subscribe to commands ?
-	private static final boolean HANDLE_FIRMWARE      = true;                               // publish firmware version and subscribe to updates ?
+	public  static final boolean SECURED              = false;                              // TLS-secured connection ?
+	private static final boolean HANDLE_CONFIGURATION = false;                              // publish configuration and subscribe to updates ?
+	private static final boolean HANDLE_COMMANDS      = false;                              // subscribe to commands ?
+	private static final boolean HANDLE_FIRMWARE      = false;                              // publish firmware version and subscribe to updates ?
 	/*
 	 * Application mode: the device may also open a dedicated MQTT connection to subscribe to FiFo topics, like cloud applications do.
 	 * Warning: the API-Key must have the additional BUS_R right. And therefore, SECURED must be set, or Live Objects will reject both connections.
 	 */
-	private static final boolean HANDLE_APPMODE       = true;                               // also act as an application consuming a FiFo (separate MQTT connection) ?
+	private static final boolean HANDLE_APPMODE       = false;                              // also act as an application consuming a FiFo (separate MQTT connection) ?
 	public  static final String  HANDLE_APPMODE_FIFO  = "DeviceToDevice";                   // application-mode: FiFo name to consume (must exist in Live Objects)
 	/*
 	 * MSG_SRC=1: simple message built with objects
