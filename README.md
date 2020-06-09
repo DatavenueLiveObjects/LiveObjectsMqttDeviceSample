@@ -1,6 +1,8 @@
 # LiveObjectsMqttDeviceSample
 Live Objects Mqtt Device Sample
 
+(c) Orange Business Services 2019-2020
+
 Sample application for Orange Datavenue Live Objects <a>https://liveobjects.orange-business.com</a>
 
 It is a device sample: it exchanges MQTT payloads with Live Objects as an MQTT device ('json+device' user name).
