@@ -1,9 +1,13 @@
 # LiveObjectsMqttDeviceSample
-Live Objects Mqtt Device Sample
+- Software Name : Live Objects Mqtt Device Sample
+- Version: 1.0
+- SPDX-FileCopyrightText: Copyright (c) 2019-2020 Orange Business Services
+- SPDX-License-Identifier: BSD-3-Clause
+- This software is distributed under the BSD-3-Clause,
+the text of which is available at https://opensource.org/licenses/BSD-3-Clause
+or see the "LICENCE" file for more details.
+- Software description: Sample application for Orange Datavenue Live Objects <a>https://liveobjects.orange-business.com</a>
 
-(c) Orange Business Services 2019-2020
-
-Sample application for Orange Datavenue Live Objects <a>https://liveobjects.orange-business.com</a>
 
 It is a device sample: it exchanges MQTT payloads with Live Objects as an MQTT device ('json+device' user name).
 It can generate standard Live Objects messages as follows :<br>
