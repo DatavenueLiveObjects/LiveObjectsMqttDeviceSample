@@ -16,7 +16,10 @@ import com.orange.mqttDeviceModePublishData.messages.BinaryEncodedMessage;
 import com.orange.mqttDeviceModePublishData.messages.BinaryMessage;
 import com.orange.mqttDeviceModePublishData.messages.HashMapMessage;
 import com.orange.mqttDeviceModePublishData.messages.SimpleMessage;
-import org.eclipse.paho.client.mqttv3.*;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import java.util.Random;
@@ -30,14 +33,16 @@ import static com.orange.mqttDeviceModePublishData.features.MqttTopics.MQTT_TOPI
  * At this end you can take a look in the data zone of live objects to see the data sent,
  * to send remote commands and parameters, or change the firmware.
  * First, change the constants belows, then run Main function.
+ * Optionally, you can run several devices at once, or change the data type.
  **/
+@SuppressWarnings("BusyWait")
 public class MyDevice {
 	// Connection parameters
 	private static final String  API_KEY              = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"; // <-- REPLACE by YOUR API_KEY with "MQTT device" rights
-	private static final String  DEVICE_URN           = "urn:lo:nsid:samples:device1";      // in device mode : should be the syntax urn:lo:nsid:{namespace}:{id}
+	private static final String  DEVICE_URN           = "urn:lo:nsid:samples:device";       // in device mode : should be the syntax urn:lo:nsid:{namespace}:{id}
 	private static final String  STREAM               = "device1stream";                    // timeseries this message belongs to
 	private static final String  MODEL                = "devtype1";                         // data indexing model
-	public  static final boolean SECURED              = false;                              // TLS-secured connection ?
+	public  static final boolean SECURED              = true;                               // TLS-secured connection ?
 	private static final boolean HANDLE_CONFIGURATION = false;                              // publish configuration and subscribe to updates ?
 	private static final boolean HANDLE_COMMANDS      = false;                              // subscribe to commands ?
 	private static final boolean HANDLE_FIRMWARE      = false;                              // publish firmware version and subscribe to updates ?
@@ -55,11 +60,22 @@ public class MyDevice {
 	 */
     private static final int     MSG_SRC              = 1;
     private static       boolean LOOP                 = true;                              // Run in a loop, or just send 1 message ?
+	private static       int     NbDevicesToCreate    = 1;                                 // why not simulating several devices at once ?
 
-	@SuppressWarnings("ConstantConditions")
-    public static void main(String[] args) {
+	private final int deviceId;
+
+	public static void main(String[] args) throws InterruptedException {
+		for (int i = 0; i < NbDevicesToCreate; i++) {
+			new Thread(MyDevice::new).start();
+			Thread.sleep(1000);
+		}
+	}
+
+    @SuppressWarnings("ConstantConditions")
+	public MyDevice() {
+		deviceId = (NbDevicesToCreate--);
 		try {
-			MqttClient mqttClient = createAndConnectMqttClient(ConnectionMode.DEVICE);
+			MqttClient mqttClient = createAndConnectMqttClientAsDevice();
 			System.out.println("Connected to Live Objects in Device Mode" + (SECURED ? " with TLS" : ""));
 
 			if (HANDLE_CONFIGURATION) {
@@ -130,19 +146,18 @@ public class MyDevice {
 		}
 	}
 
-	public static MqttClient createAndConnectMqttClient(ConnectionMode mode) throws MqttException {
+	public MqttClient createAndConnectMqttClientAsDevice() throws MqttException {
+		return createAndConnectMqttClient("json+device", DEVICE_URN + deviceId);
+	}
+	public static MqttClient createAndConnectMqttClientAsApplication() throws MqttException {
+		return createAndConnectMqttClient("application", "RandomClientId" + new Random().nextInt());
+	}
+	private static MqttClient createAndConnectMqttClient(String username, String clientId) throws MqttException {
 		// create and fill the connection options
 		MqttConnectOptions connOpts = new MqttConnectOptions();
 		connOpts.setCleanSession(true);
 		connOpts.setPassword(API_KEY.toCharArray());
-		String clientId;
-		if (mode == ConnectionMode.DEVICE) {
-			connOpts.setUserName("json+device");             // needed to publish as a device
-			clientId = DEVICE_URN;
-		} else {
-			connOpts.setUserName("application");             // needed to subscribe as an application
-			clientId = "RandomClientId" + new Random().nextInt();
-		}
+		connOpts.setUserName(username);
 		connOpts.setKeepAliveInterval(30);               // 30 seconds, to keep the connection with Live Objects
 
 		String server;
@@ -162,8 +177,5 @@ public class MyDevice {
 		// now connect to LO
 		mqttClient.connect(connOpts);
 		return mqttClient;
-	}
-	public enum ConnectionMode {
-		DEVICE, APPLICATION
 	}
 }

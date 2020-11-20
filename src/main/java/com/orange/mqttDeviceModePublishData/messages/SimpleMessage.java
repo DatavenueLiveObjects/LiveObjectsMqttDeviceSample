@@ -24,21 +24,24 @@ import java.util.TimeZone;
 @SuppressWarnings("WeakerAccess")
 public class SimpleMessage {
     public static final int QOS = 1;
+    double pseudoRandom1000 = (double) (new Date().getTime() % 1000);
 
     byte[] prepareMessage(String stream, String model) {
         // create message
         LoData loData = new LoData();
 
-        Date msgDt    = new Date();
-        loData.s      = stream;
-        loData.m      = model;
-        loData.ts     = toISO8601UTC(msgDt);
-        loData.loc    = new Double[] {
-            48.125 + (((double) (msgDt.getTime() % 1000)) / 1000),
-            2.185 + (((double) (msgDt.getTime() % 1000)) / 1000)
-        };
-        loData.v      = preparePayload(msgDt);
-        loData.t      = Arrays.asList("MQTTdata", "SampleTag");
+        Date msgDt       = new Date();
+        loData.streamId  = stream;
+        loData.model     = model;
+        loData.timestamp = toISO8601UTC(msgDt);
+        loData.location  = new LoData.Location();
+        loData.location.lat      = 48.125 + (pseudoRandom1000 / 1000);
+        loData.location.lon      = 2.185 + (pseudoRandom1000 / 1000);
+        loData.location.alt      = 100 + (pseudoRandom1000 / 10);
+        loData.location.accuracy = 1 + pseudoRandom1000;
+        loData.location.provider = "random";
+        loData.value     = preparePayload(msgDt);
+        loData.tags      = Arrays.asList("MQTTdata", "SampleTag");
 
         String msg = new Gson().toJson(loData);
         System.out.println("Publishing message: " + msg);
@@ -48,8 +51,8 @@ public class SimpleMessage {
     Object preparePayload(Date msgDt) {
         SampleData myData = new SampleData();
         myData.log = "Message from deviceMode on dev/data on " + msgDt;
-        myData.temperature = (int) (Math.pow((msgDt.getTime() % 1000) / 100, 2));
-        myData.hygrometry = (int) ((msgDt.getTime() % 1000) / 10);
+        myData.temperature = (int) (Math.pow(pseudoRandom1000 / 100, 2));
+        myData.hygrometry = (int) (pseudoRandom1000 / 10);
         return myData;
     }
 

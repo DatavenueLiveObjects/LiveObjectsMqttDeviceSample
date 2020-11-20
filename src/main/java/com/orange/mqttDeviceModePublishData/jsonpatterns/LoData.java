@@ -14,10 +14,17 @@ package com.orange.mqttDeviceModePublishData.jsonpatterns;
 import java.util.List;
 
 public class LoData {
-	public String s;        // Stream identifier. Fill it to persist the data in dataZone
-	public String ts;       // your timestamp (ISO8601 format). If null, it is filled by LiveObject
-	public String m;        // fill if you want your data to be indexed by Elastic Search. Must be unique per data type.
-	public Double[] loc;    // location of your device, if known
-	public Object v;        // <-- Replace Object by your own data type. This is the structured value.
-	public List<String> t;  // optional tags depending on your needs
+	public static class Location {
+		public double lat;         // latitude
+		public double lon;         // longitude
+		public double alt;         // altitude
+		public double accuracy;    // in meters
+		public String provider;    // eg "GPS"
+	}
+	public String       streamId;    // Stream identifier. Fill it to persist the data in dataZone
+	public String       timestamp;   // your timestamp (ISO8601 format). If null, it is filled by LiveObject
+	public String       model;       // fill if you want your data to be indexed by Elastic Search. Must be unique per data type.
+	public Location     location;    // location of your device, if known
+	public Object       value;       // <-- Replace Object by your own data type. This is the structured value.
+	public List<String> tags;        // optional tags depending on your needs
 }

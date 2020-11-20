@@ -23,7 +23,7 @@ public class AppModeHandler {
     private MqttClient mqttClient;
 
     public void subscribeToFifo() throws MqttException {
-        mqttClient = MyDevice.createAndConnectMqttClient(MyDevice.ConnectionMode.APPLICATION);
+        mqttClient = MyDevice.createAndConnectMqttClientAsApplication();
         System.out.println("Connected to Live Objects in Application Mode" + (MyDevice.SECURED ? " with TLS" : ""));
 
         mqttClient.subscribe("fifo/" + MyDevice.HANDLE_APPMODE_FIFO, this::messageArrived);
