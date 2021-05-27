@@ -53,27 +53,29 @@ public class MyDevice {
 	private static final boolean HANDLE_APPMODE       = false;                              // also act as an application consuming a FiFo (separate MQTT connection) ?
 	public  static final String  HANDLE_APPMODE_FIFO  = "DeviceToDevice";                   // application-mode: FiFo name to consume (must exist in Live Objects)
 	/*
-	 * MSG_SRC=1: simple message built with objects
-     * MSG_SRC=2: simple message built with hash map
-     * MSG_SRC=3: raw message to be decoded by Live Objects as a float number
-     * MSG_SRC=4: raw message (image) NOT to be decoded by Live Objects
+	 * MSG_SRC=0: no data message sent
+	 * MSG_SRC=1: simple data message built with objects
+     * MSG_SRC=2: simple data message built with hash map
+     * MSG_SRC=3: raw data message to be decoded by Live Objects as a float number
+     * MSG_SRC=4: raw data message (image) NOT to be decoded by Live Objects
 	 */
     private static final int     MSG_SRC              = 1;
     private static       boolean LOOP                 = true;                              // Run in a loop, or just send 1 message ?
-	private static       int     NbDevicesToCreate    = 1;                                 // why not simulating several devices at once ?
+	private static final int     NB_DEVICES_TO_CREATE = 1;                                 // why not simulating several devices at once ?
 
 	private final int deviceId;
 
 	public static void main(String[] args) throws InterruptedException {
-		for (int i = 0; i < NbDevicesToCreate; i++) {
-			new Thread(MyDevice::new).start();
+		for (int i = 0; i < NB_DEVICES_TO_CREATE; i++) {
+			final int devId = i + 1;
+			new Thread(() -> new MyDevice(devId)).start();
 			Thread.sleep(1000);
 		}
 	}
 
     @SuppressWarnings("ConstantConditions")
-	public MyDevice() {
-		deviceId = (NbDevicesToCreate--);
+	public MyDevice(int deviceId) {
+		this.deviceId = deviceId;
 		try {
 			MqttClient mqttClient = createAndConnectMqttClientAsDevice();
 			System.out.println("Connected to Live Objects in Device Mode" + (SECURED ? " with TLS" : ""));
@@ -98,10 +100,12 @@ public class MyDevice {
 			}
 
 			do {
-				MqttMessage message;
-				String topic;
+				MqttMessage message = null;
+				String topic = null;
                 switch (MSG_SRC) {
 					default:
+					case 0:
+						break;
                     case 1:
 						message = new SimpleMessage().getMessage(STREAM, MODEL);
 						topic = MQTT_TOPIC_PUBLISH_DATA;
@@ -121,8 +125,10 @@ public class MyDevice {
 				}
 
 				// send your message
-				mqttClient.publish(topic, message);
-				System.out.println("Message published");
+				if (message != null) {
+					mqttClient.publish(topic, message);
+					System.out.println("Message published");
+				}
 				if (LOOP) {
 					try {
 						Thread.sleep(10000);
