@@ -153,12 +153,18 @@ public class MyDevice {
 	}
 
 	public MqttClient createAndConnectMqttClientAsDevice() throws MqttException {
-		return createAndConnectMqttClient("json+device", DEVICE_URN + deviceId);
+		return createAndConnectMqttClient("json+device",
+				DEVICE_URN + deviceId,
+				"mqtt.liveobjects.orange-business.com", // june 2021 : using new device-specific endpoint
+				"DigiCertGlobalRootG2.crt"); // june 2021 : new device-specific endpoint certificate
 	}
 	public static MqttClient createAndConnectMqttClientAsApplication() throws MqttException {
-		return createAndConnectMqttClient("application", "RandomClientId" + new Random().nextInt());
+		return createAndConnectMqttClient("application",
+				"RandomClientId" + new Random().nextInt(),
+				"liveobjects.orange-business.com",
+				"DigiCertSHA2SecureServerCA.crt");
 	}
-	private static MqttClient createAndConnectMqttClient(String username, String clientId) throws MqttException {
+	private static MqttClient createAndConnectMqttClient(String username, String clientId, String host, String certificate) throws MqttException {
 		// create and fill the connection options
 		MqttConnectOptions connOpts = new MqttConnectOptions();
 		connOpts.setCleanSession(true);
@@ -168,15 +174,15 @@ public class MyDevice {
 
 		String server;
 		if (SECURED) {
-			server = "ssl://liveobjects.orange-business.com:8883";
-			connOpts.setSocketFactory(SSLUtils.getLiveObjectsSocketFactory());
+			server = "ssl://" + host + ":8883";
+			connOpts.setSocketFactory(SSLUtils.getLiveObjectsSocketFactory(certificate));
 		}
 		else {
 			if (HANDLE_APPMODE) {
 				System.err.println("Secure mode must be defined when an API-Key has more than \"device\" rights");
 				System.exit(1);
 			}
-			server = "tcp://liveobjects.orange-business.com:1883";
+			server = "tcp://" + host + ":1883";
 		}
 
 		MqttClient mqttClient = new RegulatedMqttClient(server, clientId, new MemoryPersistence(), 500);

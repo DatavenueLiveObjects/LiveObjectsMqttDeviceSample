@@ -58,10 +58,10 @@ public class SSLUtils {
         }
     }
 
-    public static SocketFactory getLiveObjectsSocketFactory() throws MqttSecurityException {
+    public static SocketFactory getLiveObjectsSocketFactory(String certificate) throws MqttSecurityException {
         // Get the certificate from the program resource and build a SSLSocketFactory
         try {
-            try (InputStream is = MyDevice.class.getResourceAsStream("/DigiCertSHA2SecureServerCA.crt")) {
+            try (InputStream is = MyDevice.class.getResourceAsStream("/" + certificate)) {
                 return getSSLSocketFactory(is);
             }
         } catch (IOException e) {
