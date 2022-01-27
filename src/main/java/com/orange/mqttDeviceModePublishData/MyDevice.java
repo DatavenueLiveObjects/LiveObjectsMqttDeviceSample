@@ -116,11 +116,11 @@ public class MyDevice {
 						break;
 					case 3:
 						message = new BinaryEncodedMessage().getMessage();
-						topic = MQTT_TOPIC_PUBLISH_DATA_RAW_PREFIX + "test";
+						topic = MQTT_TOPIC_PUBLISH_DATA_RAW_PREFIX + "/test";
 						break;
 					case 4:
 						message = new BinaryMessage().getMessage();
-						topic = MQTT_TOPIC_PUBLISH_DATA_RAW_PREFIX + "none";
+						topic = MQTT_TOPIC_PUBLISH_DATA_RAW_PREFIX;
 						break;
 				}
 

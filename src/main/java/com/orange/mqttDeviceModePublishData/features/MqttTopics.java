@@ -14,7 +14,7 @@ package com.orange.mqttDeviceModePublishData.features;
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class MqttTopics {
     public static final String MQTT_TOPIC_PUBLISH_DATA            = "dev/data";
-    public static final String MQTT_TOPIC_PUBLISH_DATA_RAW_PREFIX = "dev/data/raw/";
+    public static final String MQTT_TOPIC_PUBLISH_DATA_RAW_PREFIX = "dev/v1/data/binary";
 
     public static final String MQTT_TOPIC_PUBLISH_RESOURCE        = "dev/rsc";
     public static final String MQTT_TOPIC_SUBSCRIBE_RESOURCE      = "dev/rsc/upd";

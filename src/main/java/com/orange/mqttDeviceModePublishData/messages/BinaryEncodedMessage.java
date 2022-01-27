@@ -11,13 +11,19 @@
 
 package com.orange.mqttDeviceModePublishData.messages;
 
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.nio.ByteBuffer;
 
 public class BinaryEncodedMessage extends SimpleMessage {
     public MqttMessage getMessage() {
-        MqttMessage mqttMessage = new MqttMessage(ByteBuffer.allocate(4).putFloat(1337.7331F).array());
+        byte[] payload = ByteBuffer.allocate(4).putFloat(1337.7331F).array();
+        //try {
+        //    payload = Hex.decodeHex("1A02FF64");
+        //} catch (DecoderException ignored) {}
+        MqttMessage mqttMessage = new MqttMessage(payload);
         mqttMessage.setQos(QOS);
         return mqttMessage;
     }
